@@ -3,6 +3,7 @@ const routes = require('discord.js');
 require('dotenv').config();
 const server =require('@discordjs/rest');
 const { joinVoiceChannel } = require('@discordjs/voice');
+const { SlashCommandBuilder } = require('discord.js');
 
 
 const Routes = routes.Routes;
@@ -19,16 +20,25 @@ const client = new Discord.Client({
 const rest = new server.REST({version:'10'}).setToken(TOKEN);
 client.on('ready', () => {console.log(`Logged in as ${client.user.tag}!`)});
 
+function isBotInVoiceChannel(guildId) {
+    const connection = client.voice.adapters.get(guildId)
+    return !!connection;
+  }
+
 
 //leave command
 client.on('interactionCreate', (interaction) => {
     if (interaction.isChatInputCommand()) {
+        
         if (interaction.commandName === 'leave') {
+            if (isBotInVoiceChannel(GUILD_ID)) {
             const voice = require('@discordjs/voice');
             voice.getVoiceConnection(GUILD_ID).disconnect();
             interaction.reply("leaving");
+            }else{
+                interaction.reply("Não é um canal de voz")
+            }
         }
-      
     }
 })
 
@@ -48,9 +58,8 @@ client.on('interactionCreate', async (interaction) => {
                     guildId: canal.guild.id,
                     adapterCreator: canal.guild.voiceAdapterCreator,
                 })
+
                 interaction.reply(`Logando no canal ${canal.name}`)
-
-
 
             }catch(e){
                 console.log(e)
@@ -58,32 +67,17 @@ client.on('interactionCreate', async (interaction) => {
         }else{
             
             interaction.reply("Não é um canal de voz")
+
         }
     }
 
 })
 
 
-
-
-
-
 async function main(){
-
+    
     const commands = [
-        {
-            name: 'bot',
-            description: 'Changes the bot name to something',
-            options: [
-                {
-                    name: 'name',
-                    description: 'change bot Name',
-                    type: 3,
-                    required: true
-                }
-            ]
-
-        },
+        
         {
             name: 'join',
             description: 'Join the voice channel',
