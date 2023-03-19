@@ -19,17 +19,18 @@ const client = new Discord.Client({
 const rest = new server.REST({version:'10'}).setToken(TOKEN);
 client.on('ready', () => {console.log(`Logged in as ${client.user.tag}!`)});
 
-//msg test command
-client.on('interactionCreate',  (interaction) => {
+
+//leave command
+client.on('interactionCreate', (interaction) => {
     if (interaction.isChatInputCommand()) {
-        if (interaction.commandName === 'bot') {
-            interaction.reply({content:`${interaction.options.get('name').value}`});
-            client.user.setUsername("Mr. Cartola 4");
+        if (interaction.commandName === 'leave') {
+            const voice = require('@discordjs/voice');
+            voice.getVoiceConnection(GUILD_ID).disconnect();
+            interaction.reply("leaving");
         }
       
     }
 })
-
 
 //join command
 client.on('interactionCreate', async (interaction) => {
@@ -70,6 +71,19 @@ client.on('interactionCreate', async (interaction) => {
 async function main(){
 
     const commands = [
+        {
+            name: 'bot',
+            description: 'Changes the bot name to something',
+            options: [
+                {
+                    name: 'name',
+                    description: 'change bot Name',
+                    type: 3,
+                    required: true
+                }
+            ]
+
+        },
         {
             name: 'join',
             description: 'Join the voice channel',
